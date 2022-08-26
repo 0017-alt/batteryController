@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -41,8 +43,27 @@ Future<BatteryState> getBatteryState() async {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String _time = '';
+
+  @override
+  void initState() {
+    Timer.periodic(
+      Duration(minutes: 15),
+      _onTimer,
+    );
+    super.initState();
+  }
+
+  void _onTimer(Timer timer) {
+    ui();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return ui();
+  }
+
+  Widget ui() {
     return FutureBuilder(
       future: getBatteryLevel(),
       builder: (context, snapshot) {
