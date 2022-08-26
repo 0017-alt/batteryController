@@ -70,8 +70,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     colorList: <Color>[Colors.blue],
                     chartLegendSpacing: 32,
                     chartRadius: MediaQuery.of(context).size.width / 3.2,
+                    totalValue: 100,
                   ),
-                  //Text('${snapshot.data}')
+                  ifText()
                 ],
               ),
             ),
