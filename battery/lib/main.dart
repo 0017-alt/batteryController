@@ -57,7 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
             appBar: AppBar(
               title: Text(widget.title),
             ),
-<<<<<<< Updated upstream
             body: Center(
               child: Column(
                 children: <Widget>[
@@ -75,24 +74,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   //Text('${snapshot.data}')
                 ],
               ),
-=======
-            body: Column(
-              children: <Widget>[
-                SizedBox(height: 50),
-                PieChart(
-                  dataMap: <String, double>{
-                    "Battery": double.parse('${snapshot.data}')
-                  },
-                  chartType: ChartType.ring,
-                  baseChartColor: Colors.white,
-                  colorList: <Color>[Colors.blue],
-                  chartLegendSpacing: 32,
-                  chartRadius: MediaQuery.of(context).size.width / 3.2,
-                ),
-                SizedBox(height: 50),
-                ifText()
-              ],
->>>>>>> Stashed changes
             ),
           );
         } else {
