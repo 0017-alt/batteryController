@@ -52,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
             appBar: AppBar(
               title: Text(widget.title),
             ),
+<<<<<<< Updated upstream
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -65,6 +66,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                 ],
               ),
+=======
+            body: Column(
+              children: <Widget>[
+                SizedBox(height: 50),
+                PieChart(
+                  dataMap: <String, double>{
+                    "Battery": double.parse('${snapshot.data}')
+                  },
+                  chartType: ChartType.ring,
+                  baseChartColor: Colors.white,
+                  colorList: <Color>[Colors.blue],
+                  chartLegendSpacing: 32,
+                  chartRadius: MediaQuery.of(context).size.width / 3.2,
+                ),
+                SizedBox(height: 50),
+                ifText()
+              ],
+>>>>>>> Stashed changes
             ),
           );
         } else {
@@ -73,5 +92,41 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       },
     );
+  }
+
+  Widget ifText() {
+    return FutureBuilder(
+      future: getBatteryState(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError) {
+            return Text("Error: ${snapshot.error}");
+          }
+          if (!snapshot.hasData) {
+            return Text("データが見つかりません");
+          }
+          return ifState('${snapshot.data}');
+        } else {
+          // 処理中の表示
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
+
+  Widget ifState(String state) {
+    if (state == 'BatteryState.full') {
+      return const Text("満タン",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32));
+    } else if (state == 'BatteryState.charging') {
+      return const Text("充電中",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32));
+    } else if (state == 'BatteryState.discharging') {
+      return const Text("バッテリー減少中",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32));
+    } else {
+      return const Text("読み込みできません",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32));
+    }
   }
 }
