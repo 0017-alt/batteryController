@@ -1,4 +1,4 @@
-name: battery
+name: batteryapplication
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -33,9 +33,16 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  charts_flutter: ^0.9.0
+  cupertino_icons: ^1.0.5
+  battery_plus: ^2.1.4+1
+  charts_flutter: ^0.12.0
   pie_chart: ^5.3.2
+  fl_chart: ^0.55.1
+  ffi: ^2.0.1
+  flutter_local_notifications: ^9.9.1
+  flutter_bluetooth_serial: ^0.4.0
+  flutter_blue: ^0.8.0
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:
@@ -46,8 +53,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
-  battery_plus: ^2.1.4+1
+  flutter_lints: ^2.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
