@@ -19,6 +19,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var _result = '';
+  var temp = '';
 
   void _code() async {
     var shell = Shell();
@@ -30,6 +31,8 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _result = result.outText;
     });
+
+    _result = _result.substring(21,26);
   }
 
   void _return() {
@@ -45,13 +48,37 @@ class _MyAppState extends State<MyApp> {
         title: 'Flutter Demo',
         home: Scaffold(
           body: const Center(
-            child: Text('before'),
+            child: Text('No temperature information is obtained.'),
           ),
 
           floatingActionButton: FloatingActionButton(
             onPressed: _code,
-            tooltip: 'code',
-            child: const Icon(Icons.abc),
+            tooltip: 'measure temperature',
+            child: const Icon(Icons.arrow_forward),
+          ),
+        ),
+      );
+    }
+
+    if (double.parse(_result) > 60) {
+      return MaterialApp(
+        title: 'Flutter Demo',
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget> [
+                Text('CPU temperature:'),
+                Text(_result),
+                Text('[Hot]'),
+              ],
+            ),
+          ),
+
+          floatingActionButton: FloatingActionButton(
+            onPressed: _return,
+            tooltip: 'return',
+            child: const Icon(Icons.add),
           ),
         ),
       );
@@ -63,16 +90,17 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget> [
-                Text('result'),
+                Text('CPU temperature:'),
                 Text(_result),
+                Text('[cool]'),
               ],
             ),
           ),
 
           floatingActionButton: FloatingActionButton(
             onPressed: _return,
-            tooltip: 'return',
-            child: const Icon(Icons.add),
+            tooltip: 'back',
+            child: const Icon(Icons.arrow_back),
           ),
         ),
       );
