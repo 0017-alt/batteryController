@@ -19,7 +19,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var _result = '';
-  var temp = '';
 
   void _code() async {
     var shell = Shell();
@@ -77,8 +76,8 @@ class _MyAppState extends State<MyApp> {
 
           floatingActionButton: FloatingActionButton(
             onPressed: _return,
-            tooltip: 'return',
-            child: const Icon(Icons.add),
+            tooltip: 'back',
+            child: const Icon(Icons.arrow_back),
           ),
         ),
       );
@@ -92,7 +91,7 @@ class _MyAppState extends State<MyApp> {
               children: <Widget> [
                 Text('CPU temperature:'),
                 Text(_result),
-                Text('[cool]'),
+                Text('[Cool]'),
               ],
             ),
           ),
