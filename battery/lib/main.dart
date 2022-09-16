@@ -5,6 +5,9 @@ import 'package:pie_chart/pie_chart.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:process_run/shell.dart';
+import 'dart:io';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -29,6 +32,13 @@ void main() async {
   );
 
   runApp(const MyApp());
+}
+
+class SampleData {
+  String name;
+  int value;
+
+  SampleData({required this.name, required this.value});
 }
 
 class MyApp extends StatelessWidget {
@@ -66,14 +76,15 @@ Future<BatteryState> getBatteryState() async {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  bool _offPoint = false;
+  bool _offPoint = true;
+  var _result = '30';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     Timer.periodic(Duration(seconds: 10), (Timer timer) {
       _onTimer;
-      setState(() {});
     });
     super.initState();
   }
@@ -87,10 +98,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void _onTimer(Timer timer) {
-    ui();
+    setState(() {});
   }
-
-  void _handleOnPaused() {}
 
   void setNotificationOff() async {
     const IOSNotificationDetails iOSPlatformChannelSpecifics =
@@ -138,7 +147,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           fontWeight: FontWeight.bold, fontSize: 32)) &&
               !_offPoint) {
             setNotificationOff();
-            _offPoint = true;
             turnOff();
           } else if (double.parse('${snapshot.data}') < 30.0 &&
               ifText() ==
@@ -147,7 +155,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           fontWeight: FontWeight.bold, fontSize: 32)) &&
               _offPoint) {
             setNotificationOn();
-            _offPoint = false;
             turnOn();
           }
           ;
@@ -166,39 +173,41 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 child: Column(
                   children: <Widget>[
                     SizedBox(height: 50),
-                    PieChart(
-                      dataMap: <String, double>{
-                        "Battery": double.parse('${snapshot.data}')
-                      },
-                      chartType: ChartType.ring,
-                      initialAngleInDegree: 0,
-                      animationDuration: Duration(milliseconds: 0),
-                      baseChartColor: Colors.white,
-                      colorList: <Color>[Colors.blue],
-                      chartLegendSpacing: 32,
-                      chartRadius: MediaQuery.of(context).size.width / 3.2,
-                      totalValue: 100,
-                    ),
-                    SizedBox(height: 50),
+                    Text('充電状況',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20)),
+                    SizedBox(height: 20),
                     ifText(),
                     SizedBox(height: 50),
-                    ElevatedButton(
-                      onPressed: () {
-                        turnOn();
-                      },
-                      child: Text(
-                        "On",
-                      ),
-                    ),
+                    graph('${snapshot.data}'),
                     SizedBox(height: 50),
-                    ElevatedButton(
-                      onPressed: () {
-                        turnOff();
-                      },
-                      child: Text(
-                        "Off",
-                      ),
-                    ),
+                    SizedBox(
+                        width: 100,
+                        height: 50,
+                        child: RaisedButton.icon(
+                          icon: Icon(Icons.battery_charging_full),
+                          label: Text("On"),
+                          color: Colors.blue,
+                          onPressed: _offPoint
+                              ? null
+                              : () {
+                                  _offPoint = false;
+                                  turnOn();
+                                },
+                        )),
+                    SizedBox(
+                        width: 100,
+                        height: 50,
+                        child: RaisedButton.icon(
+                          icon: Icon(Icons.battery_std),
+                          label: Text("Off"),
+                          onPressed: !_offPoint
+                              ? null
+                              : () {
+                                  _offPoint = true;
+                                  turnOff();
+                                },
+                        ))
                   ],
                 ),
               ),
@@ -208,6 +217,30 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             return const CircularProgressIndicator();
           }
         });
+  }
+
+  Widget graph(String data) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        PieChart(
+          dataMap: <String, double>{"Battery": double.parse('${data}')},
+          chartType: ChartType.ring,
+          initialAngleInDegree: 0,
+          animationDuration: Duration(milliseconds: 0),
+          baseChartColor: Colors.white,
+          colorList: <Color>[Colors.blue],
+          chartLegendSpacing: 32,
+          chartRadius: MediaQuery.of(context).size.width / 3.2,
+          totalValue: 100,
+          legendOptions: LegendOptions(
+            legendPosition: LegendPosition.bottom,
+          ),
+        ),
+        SizedBox(width: 50),
+        getTemp()
+      ],
+    );
   }
 
   Widget ifText() {
@@ -243,8 +276,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     } else {
       return Text("読み込みできません",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32));
-      ;
-      ;
     }
   }
 
@@ -304,5 +335,58 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     setState(() {
       _content = resp.body;
     });
+  }
+
+  void _code() async {
+    var shell = Shell();
+    var result = await shell.run('''
+      #Display
+      osascript -e 'do shell script "sudo powermetrics -n 1 | grep -e die" with administrator privileges'
+      ''');
+
+    setState(() {
+      _result = result.outText;
+    });
+
+    _result = _result.substring(21, 26);
+  }
+
+  void _return() {
+    setState(() {
+      _result = '';
+    });
+  }
+
+  Widget getTemp() {
+    _code;
+    if (_result == '') {
+      return Text('No temperature information is obtained.');
+    }
+
+    if (double.parse(_result) > 60) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('CPU temperature:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32)),
+          Text(_result + '℃',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32)),
+          Text('[Hot]',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32)),
+        ],
+      );
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('CPU temperature:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32)),
+          Text(_result + '℃',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32)),
+          Text('[Cool]',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32)),
+        ],
+      );
+    }
   }
 }
